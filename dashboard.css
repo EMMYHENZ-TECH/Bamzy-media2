@@ -1,0 +1,443 @@
+/* Dashboard Layout */
+.dashboard-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--bg-color);
+}
+
+/* Sidebar */
+.sidebar {
+  width: 250px;
+  background-color: var(--bg-light);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+  z-index: 10;
+}
+
+.logo {
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo h2 {
+  color: var(--primary-color);
+  font-size: 1.5rem;
+}
+
+.user-info {
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--primary-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.user-details {
+  flex: 1;
+}
+
+.username {
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.balance {
+  font-size: 0.875rem;
+  color: var(--text-light);
+}
+
+.menu {
+  padding: 1rem 0;
+  flex: 1;
+}
+
+.menu ul {
+  display: flex;
+  flex-direction: column;
+}
+
+.menu li {
+  margin-bottom: 0.25rem;
+}
+
+.menu a {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  color: var(--text-color);
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.menu a i {
+  margin-right: 0.75rem;
+  font-size: 1.125rem;
+  width: 1.25rem;
+  text-align: center;
+}
+
+.menu a:hover {
+  background-color: rgba(79, 70, 229, 0.1);
+  color: var(--primary-color);
+}
+
+.menu li.active a {
+  background-color: rgba(79, 70, 229, 0.1);
+  color: var(--primary-color);
+  border-right: 3px solid var(--primary-color);
+}
+
+/* Main Content */
+.main-content {
+  flex: 1;
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+/* Dashboard Header */
+.dashboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.hamburger-menu {
+  display: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  background-color: var(--bg-light);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 0.5rem;
+  width: 100%;
+  max-width: 400px;
+}
+
+.search-bar input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 0 0.5rem;
+}
+
+.search-bar button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-light);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.cart-icon {
+  position: relative;
+  font-size: 1.25rem;
+  color: var(--text-color);
+}
+
+.cart-icon .badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+}
+
+/* Filter Section */
+.filter-section {
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background-color: var(--bg-light);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+
+.filter-section h3 {
+  margin-bottom: 1rem;
+}
+
+.platform-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.filter-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: var(--bg-light);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-btn:hover,
+.filter-btn.active {
+  background-color: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+/* Accounts Grid */
+.accounts-section {
+  margin-bottom: 2rem;
+}
+
+.accounts-section h2 {
+  margin-bottom: 1rem;
+}
+
+.accounts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.account-card {
+  background-color: var(--bg-light);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.account-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+}
+
+.account-image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+
+.account-info {
+  padding: 1rem;
+}
+
+.account-platform {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.account-platform i {
+  font-size: 1.25rem;
+}
+
+.account-title {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.account-followers {
+  color: var(--text-light);
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+.account-price {
+  font-weight: 600;
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+}
+
+.account-status {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius);
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-bottom: 0.75rem;
+}
+
+.status-available {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: var(--secondary-color);
+}
+
+.status-sold {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--danger-color);
+}
+
+.account-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    left: -250px;
+    height: 100vh;
+  }
+
+  .sidebar.active {
+    left: 0;
+  }
+
+  .hamburger-menu {
+    display: block;
+  }
+
+  .main-content {
+    width: 100%;
+  }
+
+  .accounts-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+}
+
+/* Add this to the end of your existing dashboard.css file */
+
+/* Fix for image display in account cards */
+.account-image-container {
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  border-radius: 8px 8px 0 0;
+  position: relative;
+}
+
+.account-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform 0.3s ease;
+}
+
+.account-card:hover .account-image {
+  transform: scale(1.05);
+}
+
+/* Fix for image display in account modal */
+.account-detail-image-container {
+  width: 200px;
+  height: 200px;
+  overflow: hidden;
+  border-radius: 8px;
+  margin-right: 20px;
+}
+
+.account-detail-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Badge styles for unread messages */
+.badge {
+  background-color: #ff5252;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  margin-left: 5px;
+}
+
+.message-icon {
+  position: relative;
+  margin-left: 15px;
+  font-size: 18px;
+  color: #333;
+}
+
+.message-icon .badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+}
+
+/* Unread activity item */
+.unread-activity {
+  background-color: #f0f8ff;
+  border-left: 3px solid #1e88e5;
+}
+
+/* Fund modal update */
+#fundModal .modal-content {
+  max-width: 500px;
+}
+
+.fund-options {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.fund-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.fund-option-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fund-option-icon i {
+  font-size: 20px;
+  color: #1e88e5;
+}
+
+.fund-option-info {
+  flex: 1;
+}
+
+.fund-option-title {
+  font-weight: 600;
+  margin-bottom: 3px;
+}
+
+.fund-option-description {
+  font-size: 12px;
+  color: #666;
+}
