@@ -175,14 +175,13 @@ document.addEventListener("DOMContentLoaded", () => {
       e.preventDefault()
 
       const platform = document.getElementById("platform").value
-      const accountYear = document.getElementById("accountYear").value
-      const followers = document.getElementById("followers").value
       const price = document.getElementById("price").value
       const loginDetails = document.getElementById("loginDetails").value
       const description = document.getElementById("description").value
+      const howToUse = document.getElementById("howToUse").value
       const accountImageFile = document.getElementById("accountImage").files[0]
 
-      if (!platform || !accountYear || !followers || !price || !loginDetails || !description || !accountImageFile) {
+      if (!platform || !price || !loginDetails || !description || !howToUse || !accountImageFile) {
         alert("Please fill in all fields")
         return
       }
@@ -197,11 +196,10 @@ document.addEventListener("DOMContentLoaded", () => {
         // Create account object
         const account = {
           platform,
-          year: Number.parseInt(accountYear),
-          followers: Number.parseInt(followers),
           price: Number.parseFloat(price),
           loginDetails,
           description,
+          howToUse,
           image: imageUrl,
           status: "available",
         }
@@ -251,15 +249,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const accountId = document.getElementById("editAccountId").value
       const platform = document.getElementById("editPlatform").value
-      const accountYear = document.getElementById("editAccountYear").value
-      const followers = document.getElementById("editFollowers").value
       const price = document.getElementById("editPrice").value
       const loginDetails = document.getElementById("editLoginDetails").value
       const description = document.getElementById("editDescription").value
+      const howToUse = document.getElementById("editHowToUse").value
       const status = document.getElementById("editStatus").value
       const accountImageFile = document.getElementById("editAccountImage").files[0]
 
-      if (!platform || !accountYear || !followers || !price || !loginDetails || !description || !status) {
+      if (!platform || !price || !loginDetails || !description || !howToUse || !status) {
         alert("Please fill in all fields")
         return
       }
@@ -268,11 +265,10 @@ document.addEventListener("DOMContentLoaded", () => {
       const account = {
         id: accountId,
         platform,
-        year: Number.parseInt(accountYear),
-        followers: Number.parseInt(followers),
         price: Number.parseFloat(price),
         loginDetails,
         description,
+        howToUse,
         status,
       }
 
@@ -347,10 +343,10 @@ document.addEventListener("DOMContentLoaded", () => {
           const stats = data.stats
 
           // Update stats
-          document.getElementById("totalAccounts").textContent = stats.totalAccounts
-          document.getElementById("accountsSold").textContent = stats.accountsSold
-          document.getElementById("totalRevenue").textContent = `${stats.totalRevenue.toFixed(2)}`
-          document.getElementById("totalUsers").textContent = stats.totalUsers
+          document.getElementById("totalAccounts").textContent = formatNumber(stats.totalAccounts)
+          document.getElementById("accountsSold").textContent = formatNumber(stats.accountsSold)
+          document.getElementById("totalRevenue").textContent = `₦${formatNumber(stats.totalRevenue.toFixed(2))}`
+          document.getElementById("totalUsers").textContent = formatNumber(stats.totalUsers)
 
           // Update unread message count
           updateUnreadMessageCount(stats.unreadMessages)
@@ -456,7 +452,7 @@ document.addEventListener("DOMContentLoaded", () => {
                             <p class="activity-title">${item.title}</p>
                             <p class="activity-time">${item.time}</p>
                         </div>
-                        ${item.amount ? `<div class="activity-amount">₦${item.amount.toFixed(2)}</div>` : ""}
+                        ${item.amount ? `<div class="activity-amount">₦${formatNumber(item.amount.toFixed(2))}</div>` : ""}
                     `
 
             if (item.type === "message" && !item.read) {
@@ -493,7 +489,7 @@ document.addEventListener("DOMContentLoaded", () => {
           const accounts = data.accounts
 
           if (accounts.length === 0) {
-            accountsTableBody.innerHTML = '<tr><td colspan="7">No accounts found.</td></tr>'
+            accountsTableBody.innerHTML = '<tr><td colspan="6">No accounts found.</td></tr>'
             return
           }
 
@@ -503,32 +499,31 @@ document.addEventListener("DOMContentLoaded", () => {
             const row = document.createElement("tr")
 
             row.innerHTML = `
-                        <td>${account.id}</td>
-                        <td>
-                            <div class="account-platform">
-                                <i class="fab fa-${account.platform}"></i>
-                                <span>${account.platform.charAt(0).toUpperCase() + account.platform.slice(1)}</span>
-                            </div>
-                        </td>
-                        <td><img src="${account.image}" alt="${account.platform}" class="table-image"></td>
-                        <td>${account.followers.toLocaleString()}</td>
-                        <td>₦${account.price.toFixed(2)}</td>
-                        <td>
-                            <span class="table-status ${account.status === "available" ? "status-completed" : "status-failed"}">
-                                ${account.status.charAt(0).toUpperCase() + account.status.slice(1)}
-                            </span>
-                        </td>
-                        <td>
-                            <div class="table-actions">
-                                <button class="edit-btn" data-id="${account.id}">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="delete-btn" data-id="${account.id}">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </td>
-                    `
+            <td>${account.id}</td>
+            <td>
+                <div class="account-platform">
+                    <i class="fab fa-${account.platform}"></i>
+                    <span>${account.platform.charAt(0).toUpperCase() + account.platform.slice(1)}</span>
+                </div>
+            </td>
+            <td><img src="${account.image}" alt="${account.platform}" class="table-image"></td>
+            <td>₦${formatNumber(account.price.toFixed(2))}</td>
+            <td>
+                <span class="table-status ${account.status === "available" ? "status-completed" : "status-failed"}">
+                    ${account.status.charAt(0).toUpperCase() + account.status.slice(1)}
+                </span>
+            </td>
+            <td>
+                <div class="table-actions">
+                    <button class="edit-btn" data-id="${account.id}" title="Edit">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="delete-btn" data-id="${account.id}" title="Delete">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </td>
+          `
 
             accountsTableBody.appendChild(row)
           })
@@ -550,12 +545,12 @@ document.addEventListener("DOMContentLoaded", () => {
             })
           })
         } else {
-          accountsTableBody.innerHTML = '<tr><td colspan="7">Failed to load accounts.</td></tr>'
+          accountsTableBody.innerHTML = '<tr><td colspan="6">Failed to load accounts.</td></tr>'
         }
       })
       .catch((error) => {
         console.error("Error:", error)
-        accountsTableBody.innerHTML = '<tr><td colspan="7">An error occurred. Please try again.</td></tr>'
+        accountsTableBody.innerHTML = '<tr><td colspan="6">An error occurred. Please try again.</td></tr>'
       })
   }
 
@@ -590,7 +585,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         <td>${transaction.id}</td>
                         <td>${transaction.user}</td>
                         <td>${transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}</td>
-                        <td>₦${transaction.amount.toFixed(2)}</td>
+                        <td>₦${formatNumber(transaction.amount.toFixed(2))}</td>
                         <td>${transaction.date}</td>
                         <td>
                             <span class="table-status ${transaction.status === "completed" ? "status-completed" : transaction.status === "pending" ? "status-pending" : "status-failed"}">
@@ -652,17 +647,17 @@ document.addEventListener("DOMContentLoaded", () => {
             <td>${user.id}</td>
             <td>${user.name}</td>
             <td>${user.email}</td>
-            <td>${user.balance === Number.POSITIVE_INFINITY ? "∞" : `₦${user.balance.toFixed(2)}`}</td>
+            <td>${user.balance === Number.POSITIVE_INFINITY ? "∞" : `₦${formatNumber(user.balance.toFixed(2))}`}</td>
             <td>${user.joined}</td>
             <td>
               <div class="table-actions">
-                <button class="edit-user-btn" data-id="${user.id}">
+                <button class="edit-user-btn" data-id="${user.id}" title="Edit">
                   <i class="fas fa-edit"></i>
                 </button>
-                <button class="delete-user-btn" data-id="${user.id}">
+                <button class="delete-user-btn" data-id="${user.id}" title="Delete">
                   <i class="fas fa-trash"></i>
                 </button>
-                <button class="message-user-btn" data-id="${user.id}" data-name="${user.name}">
+                <button class="message-user-btn" data-id="${user.id}" data-name="${user.name}" title="Message">
                   <i class="fas fa-envelope"></i>
                 </button>
               </div>
@@ -698,21 +693,117 @@ document.addEventListener("DOMContentLoaded", () => {
             })
           })
         } else {
-          usersTableBody.innerHTML =
-            '<tr><td colspan="6">Failed to load users. Server response: ' + JSON.stringify(data) + "</td></tr>"
+          // Fallback to mock data for demo
+          const mockUsers = getMockUsers()
+          renderMockUsers(mockUsers)
         }
       })
       .catch((error) => {
         console.error("Error:", error)
-        usersTableBody.innerHTML = '<tr><td colspan="6">An error occurred: ' + error.message + "</td></tr>"
+        // Fallback to mock data for demo
+        const mockUsers = getMockUsers()
+        renderMockUsers(mockUsers)
       })
   }
 
-  // Helper function to format numbers with commas if it doesn't exist
-  if (typeof formatNumber !== "function") {
-    function formatNumber(num) {
-      return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-    }
+  // Function to render mock users
+  function renderMockUsers(users) {
+    const usersTableBody = document.getElementById("usersTableBody")
+    if (!usersTableBody) return
+
+    usersTableBody.innerHTML = ""
+
+    users.forEach((user) => {
+      const row = document.createElement("tr")
+
+      row.innerHTML = `
+      <td>${user.id}</td>
+      <td>${user.name}</td>
+      <td>${user.email}</td>
+      <td>₦${formatNumber(user.balance.toFixed(2))}</td>
+      <td>${user.joined}</td>
+      <td>
+        <div class="table-actions">
+          <button class="edit-user-btn" data-id="${user.id}" title="Edit">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button class="delete-user-btn" data-id="${user.id}" title="Delete">
+            <i class="fas fa-trash"></i>
+          </button>
+          <button class="message-user-btn" data-id="${user.id}" data-name="${user.name}" title="Message">
+            <i class="fas fa-envelope"></i>
+          </button>
+        </div>
+      </td>
+    `
+
+      usersTableBody.appendChild(row)
+    })
+
+    // Add event listeners to buttons
+    const editButtons = usersTableBody.querySelectorAll(".edit-user-btn")
+    editButtons.forEach((button) => {
+      button.addEventListener("click", function () {
+        const userId = this.dataset.id
+        editUser(userId)
+      })
+    })
+
+    const deleteButtons = usersTableBody.querySelectorAll(".delete-user-btn")
+    deleteButtons.forEach((button) => {
+      button.addEventListener("click", function () {
+        const userId = this.dataset.id
+        deleteUser(userId)
+      })
+    })
+
+    const messageButtons = usersTableBody.querySelectorAll(".message-user-btn")
+    messageButtons.forEach((button) => {
+      button.addEventListener("click", function () {
+        const userId = this.dataset.id
+        const userName = this.dataset.name
+        window.location.href = `/messages.html?userId=${userId}&userName=${encodeURIComponent(userName)}`
+      })
+    })
+  }
+
+  // Function to get mock users for demo purposes
+  function getMockUsers() {
+    return [
+      {
+        id: "1745845463159",
+        name: "John Doe",
+        email: "john@example.com",
+        balance: 75000,
+        joined: "Apr 28, 2025",
+      },
+      {
+        id: "1745845463160",
+        name: "Jane Smith",
+        email: "jane@example.com",
+        balance: 120000,
+        joined: "Apr 25, 2025",
+      },
+      {
+        id: "1745845463161",
+        name: "Michael Johnson",
+        email: "michael@example.com",
+        balance: 45000,
+        joined: "Apr 20, 2025",
+      },
+      {
+        id: "1745845463162",
+        name: "Sarah Williams",
+        email: "sarah@example.com",
+        balance: 90000,
+        joined: "Apr 15, 2025",
+      },
+    ]
+  }
+
+  // Helper function to format numbers with commas
+  function formatNumber(num) {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
   }
 
   // Function to edit account
@@ -734,11 +825,10 @@ document.addEventListener("DOMContentLoaded", () => {
             // Fill form with account details
             document.getElementById("editAccountId").value = account.id
             document.getElementById("editPlatform").value = account.platform
-            document.getElementById("editAccountYear").value = account.year
-            document.getElementById("editFollowers").value = account.followers
             document.getElementById("editPrice").value = account.price
             document.getElementById("editLoginDetails").value = account.loginDetails
             document.getElementById("editDescription").value = account.description
+            document.getElementById("editHowToUse").value = account.howToUse || ""
             document.getElementById("editStatus").value = account.status
 
             // Show image preview

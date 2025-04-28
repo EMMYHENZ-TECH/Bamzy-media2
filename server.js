@@ -279,9 +279,9 @@ app.get("/api/accounts/:id", authenticateToken, (req, res) => {
 })
 
 app.post("/api/accounts", authenticateToken, isAdmin, (req, res) => {
-  const { platform, image, year, followers, price, loginDetails, description } = req.body
+  const { platform, image, price, loginDetails, description, howToUse } = req.body
 
-  if (!platform || !image || !year || !followers || !price || !loginDetails || !description) {
+  if (!platform || !image || !price || !loginDetails || !description || !howToUse) {
     return res.status(400).json({ success: false, message: "Missing required fields" })
   }
 
@@ -292,11 +292,10 @@ app.post("/api/accounts", authenticateToken, isAdmin, (req, res) => {
     id: Date.now().toString(),
     platform,
     image,
-    year,
-    followers,
-    price,
+    price: Number.parseFloat(price),
     loginDetails,
     description,
+    howToUse,
     status: "available",
   }
 
@@ -311,9 +310,9 @@ app.post("/api/accounts", authenticateToken, isAdmin, (req, res) => {
 
 app.put("/api/accounts/:id", authenticateToken, isAdmin, (req, res) => {
   const { id } = req.params
-  const { platform, image, year, followers, price, loginDetails, description, status } = req.body
+  const { platform, image, price, loginDetails, description, howToUse, status } = req.body
 
-  if (!platform || !year || !followers || !price || !loginDetails || !description || !status) {
+  if (!platform || !price || !loginDetails || !description || !howToUse || !status) {
     return res.status(400).json({ success: false, message: "Missing required fields" })
   }
 
@@ -330,11 +329,10 @@ app.put("/api/accounts/:id", authenticateToken, isAdmin, (req, res) => {
   const updatedAccount = {
     ...accounts[accountIndex],
     platform,
-    year,
-    followers,
-    price,
+    price: Number.parseFloat(price),
     loginDetails,
     description,
+    howToUse,
     status,
   }
 
@@ -802,8 +800,8 @@ app.get("/api/purchases", authenticateToken, (req, res) => {
             id: account.id,
             platform: account.platform,
             image: account.image,
-            followers: account.followers,
             loginDetails: account.loginDetails,
+            howToUse: account.howToUse,
           }
         : null,
       amount: purchase.amount,
@@ -895,6 +893,7 @@ app.get("/api/messages/:partnerId", authenticateToken, (req, res) => {
   })
 })
 
+// Auto-reply for funding messages
 app.post("/api/messages", authenticateToken, (req, res) => {
   const { receiverId, message } = req.body
 
@@ -923,12 +922,57 @@ app.post("/api/messages", authenticateToken, (req, res) => {
 
   messages.push(newMessage)
 
+  // Check if this is a funding request message and receiver is admin
+  let autoReply = null
+  if (
+    receiverId === "1" && // Admin ID
+    req.user.role === "user" &&
+    message.toLowerCase().includes("fund") &&
+    message.toLowerCase().includes("account")
+  ) {
+    // Create auto-reply message for funding requests
+    autoReply = {
+      id: Date.now().toString() + "-reply",
+      senderId: "1", // Admin ID
+      receiverId: req.user.id,
+      message:
+        "Please send exact amount to this account: 7087182921 Opay Babalola Ayomide. Type 'done' after payment has been made.",
+      timestamp: new Date().toISOString(),
+      read: false,
+    }
+
+    messages.push(autoReply)
+  } else if (
+    receiverId === "1" && // Admin ID
+    req.user.role === "user" &&
+    message.toLowerCase() === "done"
+  ) {
+    // Create auto-reply for "done" message
+    autoReply = {
+      id: Date.now().toString() + "-reply",
+      senderId: "1", // Admin ID
+      receiverId: req.user.id,
+      message:
+        "Please wait, we are connecting you to a nearest admin live chat where funding your account would take place...",
+      timestamp: new Date().toISOString(),
+      read: false,
+    }
+
+    messages.push(autoReply)
+  }
+
   if (writeDataFile(MESSAGES_FILE, messages)) {
-    return res.json({
+    const response = {
       success: true,
       message: "Message sent successfully",
       data: newMessage,
-    })
+    }
+
+    if (autoReply) {
+      response.autoReply = autoReply
+    }
+
+    return res.json(response)
   } else {
     return res.status(500).json({ success: false, message: "Failed to send message" })
   }

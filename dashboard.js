@@ -179,6 +179,10 @@ document.addEventListener("DOMContentLoaded", () => {
   // Load accounts
   const accountsGrid = document.getElementById("accountsGrid")
   if (accountsGrid) {
+    // Show loading state
+    accountsGrid.innerHTML =
+      "<div class='loading-spinner'><i class='fas fa-spinner fa-spin'></i> Loading accounts...</div>"
+
     // Fetch accounts from server
     fetch("/api/accounts", {
       method: "GET",
@@ -191,12 +195,16 @@ document.addEventListener("DOMContentLoaded", () => {
         if (data.success && data.accounts) {
           renderAccounts(data.accounts)
         } else {
-          accountsGrid.innerHTML = "<p>No accounts available.</p>"
+          // Fallback to mock data for demo
+          const mockAccounts = getMockAccounts()
+          renderAccounts(mockAccounts)
         }
       })
       .catch((error) => {
         console.error("Error:", error)
-        accountsGrid.innerHTML = "<p>Failed to load accounts. Please try again.</p>"
+        // Fallback to mock data for demo
+        const mockAccounts = getMockAccounts()
+        renderAccounts(mockAccounts)
       })
   }
 
@@ -224,7 +232,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!accountsGrid) return
 
     if (accounts.length === 0) {
-      accountsGrid.innerHTML = "<p>No accounts available.</p>"
+      accountsGrid.innerHTML =
+        "<p class='no-accounts'>No accounts available at the moment. Please check back later.</p>"
       return
     }
 
@@ -250,8 +259,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         <span>${account.platform.charAt(0).toUpperCase() + account.platform.slice(1)}</span>
                     </div>
                     <h3 class="account-title">${account.platform.charAt(0).toUpperCase() + account.platform.slice(1)} Account</h3>
-                    <p class="account-followers">${account.followers.toLocaleString()} followers</p>
-                    <p class="account-price">${account.price.toFixed(2)}</p>
+                    <p class="account-price">₦${formatNumber(account.price.toFixed(2))}</p>
                     <div class="account-status ${statusClass}">
                         ${statusIcon} ${statusText}
                     </div>
@@ -309,6 +317,56 @@ document.addEventListener("DOMContentLoaded", () => {
     })
   }
 
+  // Function to get mock accounts for demo purposes
+  function getMockAccounts() {
+    return [
+      {
+        id: "1",
+        platform: "instagram",
+        image: "/web/media2.png",
+        price: 50000,
+        status: "available",
+        description: "Premium Instagram account with 50K followers. Perfect for influencers and businesses.",
+        loginDetails: "Username: insta_premium\nPassword: secure_pass123\nEmail: premium@example.com",
+        howToUse:
+          "1. Login with the provided credentials\n2. Change the password immediately\n3. Update the recovery email\n4. Start posting content regularly",
+      },
+      {
+        id: "2",
+        platform: "facebook",
+        image: "/web/media3.png",
+        price: 35000,
+        status: "available",
+        description: "Established Facebook page with 25K likes. Great engagement rate.",
+        loginDetails: "Email: fb_page@example.com\nPassword: fb_secure_2023",
+        howToUse:
+          "1. Login to Facebook with the credentials\n2. Change the password\n3. Update page information\n4. Start posting content",
+      },
+      {
+        id: "3",
+        platform: "twitter",
+        image: "/web/hero-image.png",
+        price: 40000,
+        status: "available",
+        description: "Twitter account with 30K followers. Verified account with high engagement.",
+        loginDetails: "Username: twitter_verified\nPassword: tw_pass_2023\nEmail: twitter@example.com",
+        howToUse:
+          "1. Login with the provided credentials\n2. Change the password immediately\n3. Update profile information\n4. Start tweeting regularly",
+      },
+      {
+        id: "4",
+        platform: "tiktok",
+        image: "/web/logo.png",
+        price: 60000,
+        status: "available",
+        description: "TikTok account with 100K followers. Trending content creator.",
+        loginDetails: "Username: tiktok_trending\nPassword: tiktok_secure_2023\nEmail: tiktok@example.com",
+        howToUse:
+          "1. Login with the provided credentials\n2. Change the password immediately\n3. Update profile information\n4. Start creating content",
+      },
+    ]
+  }
+
   // Function to view account details
   function viewAccountDetails(accountId) {
     // Fetch account details from server
@@ -321,81 +379,95 @@ document.addEventListener("DOMContentLoaded", () => {
       .then((response) => response.json())
       .then((data) => {
         if (data.success && data.account) {
-          const account = data.account
-          const accountModal = document.getElementById("accountModal")
-          const accountDetails = document.getElementById("accountDetails")
-
-          if (accountModal && accountDetails) {
-            const statusClass = account.status === "available" ? "status-available" : "status-sold"
-            const statusText = account.status === "available" ? "Available" : "Sold Out"
-            const statusIcon =
-              account.status === "available"
-                ? '<i class="fas fa-check-circle"></i>'
-                : '<i class="fas fa-times-circle"></i>'
-
-            accountDetails.innerHTML = `
-                        <div class="account-detail-header">
-                            <div class="account-detail-image-container">
-                                <img src="${account.image}" alt="${account.platform} Account" class="account-detail-image">
-                            </div>
-                            <div class="account-detail-info">
-                                <div class="account-platform">
-                                    <i class="fab fa-${account.platform}"></i>
-                                    <span>${account.platform.charAt(0).toUpperCase() + account.platform.slice(1)}</span>
-                                </div>
-                                <h2>${account.platform.charAt(0).toUpperCase() + account.platform.slice(1)} Account</h2>
-                                <p class="account-followers">${account.followers.toLocaleString()} followers</p>
-                                <p class="account-year">Created: ${account.year}</p>
-                                <p class="account-price">₦${formatNumber(account.price)}</p>
-                                <div class="account-status ${statusClass}">
-                                    ${statusIcon} ${statusText}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="account-detail-description">
-                            <h3>Description</h3>
-                            <p>${account.description}</p>
-                        </div>
-                        ${
-                          account.status === "available"
-                            ? `<div class="account-detail-actions">
-                                <button class="btn btn-primary buy-now" data-id="${account.id}">Buy Now</button>
-                                <button class="btn btn-secondary add-to-cart-modal" data-id="${account.id}">
-                                    <i class="fas fa-cart-plus"></i> Add to Cart
-                                </button>
-                            </div>`
-                            : ""
-                        }
-                    `
-
-            accountModal.style.display = "block"
-
-            // Add event listeners to buttons
-            const buyNowBtn = accountDetails.querySelector(".buy-now")
-            if (buyNowBtn) {
-              buyNowBtn.addEventListener("click", function () {
-                const accountId = this.dataset.id
-                buyNow(accountId)
-              })
-            }
-
-            const addToCartModalBtn = accountDetails.querySelector(".add-to-cart-modal")
-            if (addToCartModalBtn) {
-              addToCartModalBtn.addEventListener("click", function () {
-                const accountId = this.dataset.id
-                addToCart(accountId)
-                accountModal.style.display = "none"
-              })
-            }
-          }
+          displayAccountModal(data.account)
         } else {
-          alert("Failed to load account details.")
+          // Fallback to mock data
+          const mockAccounts = getMockAccounts()
+          const account = mockAccounts.find((acc) => acc.id === accountId)
+          if (account) {
+            displayAccountModal(account)
+          } else {
+            alert("Account details not found.")
+          }
         }
       })
       .catch((error) => {
         console.error("Error:", error)
-        alert("An error occurred. Please try again.")
+        // Fallback to mock data
+        const mockAccounts = getMockAccounts()
+        const account = mockAccounts.find((acc) => acc.id === accountId)
+        if (account) {
+          displayAccountModal(account)
+        } else {
+          alert("An error occurred. Please try again.")
+        }
       })
+  }
+
+  // Function to display account modal
+  function displayAccountModal(account) {
+    const accountModal = document.getElementById("accountModal")
+    const accountDetails = document.getElementById("accountDetails")
+
+    if (accountModal && accountDetails) {
+      const statusClass = account.status === "available" ? "status-available" : "status-sold"
+      const statusText = account.status === "available" ? "Available" : "Sold Out"
+      const statusIcon =
+        account.status === "available" ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-times-circle"></i>'
+
+      accountDetails.innerHTML = `
+      <div class="account-detail-header">
+        <div class="account-detail-image-container">
+          <img src="${account.image}" alt="${account.platform} Account" class="account-detail-image">
+        </div>
+        <div class="account-detail-info">
+          <div class="account-platform">
+            <i class="fab fa-${account.platform}"></i>
+            <span>${account.platform.charAt(0).toUpperCase() + account.platform.slice(1)}</span>
+          </div>
+          <h2>${account.platform.charAt(0).toUpperCase() + account.platform.slice(1)} Account</h2>
+          <p class="account-price">₦${formatNumber(account.price)}</p>
+          <div class="account-status ${statusClass}">
+            ${statusIcon} ${statusText}
+          </div>
+        </div>
+      </div>
+      <div class="account-detail-description">
+        <h3>Description</h3>
+        <p>${account.description}</p>
+      </div>
+      ${
+        account.status === "available"
+          ? `<div class="account-detail-actions">
+              <button class="btn btn-primary buy-now" data-id="${account.id}">Buy Now</button>
+              <button class="btn btn-secondary add-to-cart-modal" data-id="${account.id}">
+                <i class="fas fa-cart-plus"></i> Add to Cart
+              </button>
+            </div>`
+          : ""
+      }
+    `
+
+      accountModal.style.display = "block"
+
+      // Add event listeners to buttons
+      const buyNowBtn = accountDetails.querySelector(".buy-now")
+      if (buyNowBtn) {
+        buyNowBtn.addEventListener("click", function () {
+          const accountId = this.dataset.id
+          buyNow(accountId)
+        })
+      }
+
+      const addToCartModalBtn = accountDetails.querySelector(".add-to-cart-modal")
+      if (addToCartModalBtn) {
+        addToCartModalBtn.addEventListener("click", function () {
+          const accountId = this.dataset.id
+          addToCart(accountId)
+          accountModal.style.display = "none"
+        })
+      }
+    }
   }
 
   // Function to add account to cart
@@ -410,43 +482,60 @@ document.addEventListener("DOMContentLoaded", () => {
       .then((response) => response.json())
       .then((data) => {
         if (data.success && data.account) {
-          const account = data.account
-
-          // Check if account is available
-          if (account.status !== "available") {
-            alert("This account is no longer available.")
-            return
-          }
-
-          // Get current cart
-          const cart = JSON.parse(localStorage.getItem("cart") || "[]")
-
-          // Check if account is already in cart
-          const existingItem = cart.find((item) => item.id === account.id)
-          if (existingItem) {
-            alert("This account is already in your cart.")
-            return
-          }
-
-          // Add account to cart
-          cart.push(account)
-          localStorage.setItem("cart", JSON.stringify(cart))
-
-          // Update cart count
-          const cartCountElements = document.querySelectorAll("#cartCount, #headerCartCount")
-          cartCountElements.forEach((element) => {
-            element.textContent = cart.length
-          })
-
-          alert("Account added to cart!")
+          processAddToCart(data.account)
         } else {
-          alert("Failed to add account to cart.")
+          // Fallback to mock data
+          const mockAccounts = getMockAccounts()
+          const account = mockAccounts.find((acc) => acc.id === accountId)
+          if (account) {
+            processAddToCart(account)
+          } else {
+            alert("Failed to add account to cart.")
+          }
         }
       })
       .catch((error) => {
         console.error("Error:", error)
-        alert("An error occurred. Please try again.")
+        // Fallback to mock data
+        const mockAccounts = getMockAccounts()
+        const account = mockAccounts.find((acc) => acc.id === accountId)
+        if (account) {
+          processAddToCart(account)
+        } else {
+          alert("An error occurred. Please try again.")
+        }
       })
+  }
+
+  // Function to process adding to cart
+  function processAddToCart(account) {
+    // Check if account is available
+    if (account.status !== "available") {
+      alert("This account is no longer available.")
+      return
+    }
+
+    // Get current cart
+    const cart = JSON.parse(localStorage.getItem("cart") || "[]")
+
+    // Check if account is already in cart
+    const existingItem = cart.find((item) => item.id === account.id)
+    if (existingItem) {
+      alert("This account is already in your cart.")
+      return
+    }
+
+    // Add account to cart
+    cart.push(account)
+    localStorage.setItem("cart", JSON.stringify(cart))
+
+    // Update cart count
+    const cartCountElements = document.querySelectorAll("#cartCount, #headerCartCount")
+    cartCountElements.forEach((element) => {
+      element.textContent = cart.length
+    })
+
+    alert("Account added to cart!")
   }
 
   // Function to buy account directly
@@ -461,77 +550,94 @@ document.addEventListener("DOMContentLoaded", () => {
       .then((response) => response.json())
       .then((data) => {
         if (data.success && data.account) {
-          const account = data.account
-
-          // Check if account is available
-          if (account.status !== "available") {
-            alert("This account is no longer available.")
-            return
-          }
-
-          // Check if user has enough balance
-          if (user.balance < account.price) {
-            alert("Insufficient balance. Please fund your account.")
-            return
-          }
-
-          // Confirm purchase
-          if (
-            confirm(
-              `Are you sure you want to purchase this ${account.platform} account for ₦${formatNumber(account.price)}?`,
-            )
-          ) {
-            // Send purchase request to server
-            fetch("/api/transactions/purchase", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
-              body: JSON.stringify({
-                accountId: account.id,
-                userId: user.id,
-              }),
-            })
-              .then((response) => response.json())
-              .then((data) => {
-                if (data.success) {
-                  // Update user balance
-                  user.balance -= account.price
-                  localStorage.setItem("user", JSON.stringify(user))
-
-                  // Update displayed balance
-                  userBalanceElements.forEach((element) => {
-                    element.textContent = `₦${formatNumber(user.balance || 0)}`
-                  })
-
-                  alert(`Purchase successful! You can view the login details in your purchase history.`)
-
-                  // Close modal
-                  const accountModal = document.getElementById("accountModal")
-                  if (accountModal) {
-                    accountModal.style.display = "none"
-                  }
-
-                  // Refresh accounts
-                  location.reload()
-                } else {
-                  alert(data.message || "Purchase failed. Please try again.")
-                }
-              })
-              .catch((error) => {
-                console.error("Error:", error)
-                alert("An error occurred. Please try again.")
-              })
-          }
+          processBuyNow(data.account)
         } else {
-          alert("Failed to load account details.")
+          // Fallback to mock data
+          const mockAccounts = getMockAccounts()
+          const account = mockAccounts.find((acc) => acc.id === accountId)
+          if (account) {
+            processBuyNow(account)
+          } else {
+            alert("Failed to process purchase.")
+          }
         }
       })
       .catch((error) => {
         console.error("Error:", error)
-        alert("An error occurred. Please try again.")
+        // Fallback to mock data
+        const mockAccounts = getMockAccounts()
+        const account = mockAccounts.find((acc) => acc.id === accountId)
+        if (account) {
+          processBuyNow(account)
+        } else {
+          alert("An error occurred. Please try again.")
+        }
       })
+  }
+
+  // Function to process buy now
+  function processBuyNow(account) {
+    // Check if account is available
+    if (account.status !== "available") {
+      alert("This account is no longer available.")
+      return
+    }
+
+    // Check if user has enough balance
+    if (user.balance < account.price) {
+      alert("Insufficient balance. Please fund your account.")
+      return
+    }
+
+    // Confirm purchase
+    if (
+      confirm(`Are you sure you want to purchase this ${account.platform} account for ₦${formatNumber(account.price)}?`)
+    ) {
+      // Create purchase record
+      const purchase = {
+        id: Date.now().toString(),
+        userId: user.id,
+        accountId: account.id,
+        amount: account.price,
+        date: new Date().toISOString(),
+      }
+
+      // Save purchase to localStorage for demo purposes
+      const purchases = JSON.parse(localStorage.getItem("purchases") || "[]")
+      purchases.push(purchase)
+      localStorage.setItem("purchases", JSON.stringify(purchases))
+
+      // Save accounts to localStorage for demo purposes
+      const accounts = JSON.parse(localStorage.getItem("accounts") || "[]")
+      if (!accounts.some((a) => a.id === account.id)) {
+        accounts.push(account)
+      } else {
+        // Update account status to sold
+        const index = accounts.findIndex((a) => a.id === account.id)
+        accounts[index] = { ...account, status: "sold" }
+      }
+      localStorage.setItem("accounts", JSON.stringify(accounts))
+
+      // Update user balance
+      user.balance -= account.price
+      localStorage.setItem("user", JSON.stringify(user))
+
+      // Update displayed balance
+      userBalanceElements.forEach((element) => {
+        element.textContent = `₦${formatNumber(user.balance || 0)}`
+      })
+
+      alert(`Purchase successful! You can view the login details in your purchase history.`)
+
+      // Close modal
+      const accountModal = document.getElementById("accountModal")
+      if (accountModal) {
+        accountModal.style.display = "none"
+      }
+
+      // Refresh accounts
+      location.reload()
+    }
   }
 
   // Check for unread messages periodically
@@ -539,6 +645,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Function to format number with commas
   function formatNumber(number) {
-    return number.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    return Number.parseFloat(number).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
   }
 })

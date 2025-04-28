@@ -8,6 +8,112 @@
     <link rel="stylesheet" href="dashboard.css">
     <link rel="stylesheet" href="admin.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        .logo h2 {
+            font-family: 'Montserrat', sans-  sans-serif;
+        }
+        
+        .logo h2 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: #1e40af;
+        }
+        
+        .sidebar {
+            background: linear-gradient(to bottom, #1e40af, #3b82f6);
+        }
+        
+        .menu a {
+            font-weight: 500;
+        }
+        
+        .admin-dashboard h2, 
+        .manage-accounts h2, 
+        .transactions h2, 
+        .users-section h2 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            color: #1e40af;
+            margin-bottom: 1.5rem;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .admin-dashboard h2:after, 
+        .manage-accounts h2:after, 
+        .transactions h2:after, 
+        .users-section h2:after {
+            content: "";
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background-color: #3b82f6;
+            border-radius: 3px;
+        }
+        
+        .stat-card {
+            border-left: 4px solid #3b82f6;
+        }
+        
+        .stat-icon {
+            color: #1e40af;
+        }
+        
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .table-actions button {
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            margin: 0 5px;
+            padding: 5px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+        
+        .edit-btn {
+            color: #3b82f6;
+        }
+        
+        .delete-btn {
+            color: #ef4444;
+        }
+        
+        .edit-btn:hover, .message-user-btn:hover {
+            background-color: rgba(59, 130, 246, 0.1);
+        }
+        
+        .delete-btn:hover {
+            background-color: rgba(239, 68, 68, 0.1);
+        }
+        
+        @media (max-width: 768px) {
+            .table-actions {
+                display: flex;
+                justify-content: center;
+            }
+            
+            .table-actions button {
+                padding: 8px;
+                margin: 0 3px;
+            }
+            
+            .table-actions i {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="dashboard-container">
@@ -113,22 +219,23 @@
             <div class="manage-accounts" id="manageAccounts" style="display: none;">
                 <h2>Manage Social Media Accounts</h2>
                 <div class="accounts-table-container">
-                    <table class="accounts-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Platform</th>
-                                <th>Image</th>
-                                <th>Followers</th>
-                                <th>Price</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="accountsTableBody">
-                            <!-- Accounts will be loaded dynamically here -->
-                        </tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table class="accounts-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Platform</th>
+                                    <th>Image</th>
+                                    <th>Price</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="accountsTableBody">
+                                <!-- Accounts will be loaded dynamically here -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -136,21 +243,23 @@
             <div class="transactions" id="transactionsSection" style="display: none;">
                 <h2>Transactions</h2>
                 <div class="transactions-table-container">
-                    <table class="transactions-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>User</th>
-                                <th>Type</th>
-                                <th>Amount</th>
-                                <th>Date</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="transactionsTableBody">
-                            <!-- Transactions will be loaded dynamically here -->
-                        </tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table class="transactions-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>User</th>
+                                    <th>Type</th>
+                                    <th>Amount</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transactionsTableBody">
+                                <!-- Transactions will be loaded dynamically here -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -158,21 +267,23 @@
             <div class="users-section" id="usersSection" style="display: none;">
                 <h2>Users</h2>
                 <div class="users-table-container">
-                    <table class="users-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Balance</th>
-                                <th>Joined</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="usersTableBody">
-                            <!-- Users will be loaded dynamically here -->
-                        </tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table class="users-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Balance</th>
+                                    <th>Joined</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <!-- Users will be loaded dynamically here -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -201,15 +312,7 @@
                     <div id="imagePreview" class="image-preview"></div>
                 </div>
                 <div class="form-group">
-                    <label for="accountYear">Year Created</label>
-                    <input type="number" id="accountYear" name="accountYear" min="2000" max="2023" required>
-                </div>
-                <div class="form-group">
-                    <label for="followers">Followers</label>
-                    <input type="number" id="followers" name="followers" min="0" required>
-                </div>
-                <div class="form-group">
-                    <label for="price">Price ($)</label>
+                    <label for="price">Price (₦)</label>
                     <input type="number" id="price" name="price" min="1" step="0.01" required>
                 </div>
                 <div class="form-group">
@@ -219,6 +322,10 @@
                 <div class="form-group">
                     <label for="description">Description</label>
                     <textarea id="description" name="description" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="howToUse">How To Use Manual</label>
+                    <textarea id="howToUse" name="howToUse" rows="3" placeholder="Enter instructions on how to use this account (e.g., authenticator setup, security tips, etc.)" required></textarea>
                 </div>
                 <button type="submit" class="btn btn-primary">Add Account</button>
             </form>
@@ -249,15 +356,7 @@
                     <div id="editImagePreview" class="image-preview"></div>
                 </div>
                 <div class="form-group">
-                    <label for="editAccountYear">Year Created</label>
-                    <input type="number" id="editAccountYear" name="accountYear" min="2000" max="2023" required>
-                </div>
-                <div class="form-group">
-                    <label for="editFollowers">Followers</label>
-                    <input type="number" id="editFollowers" name="followers" min="0" required>
-                </div>
-                <div class="form-group">
-                    <label for="editPrice">Price ($)</label>
+                    <label for="editPrice">Price (₦)</label>
                     <input type="number" id="editPrice" name="price" min="1" step="0.01" required>
                 </div>
                 <div class="form-group">
@@ -267,6 +366,10 @@
                 <div class="form-group">
                     <label for="editDescription">Description</label>
                     <textarea id="editDescription" name="description" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="editHowToUse">How To Use Manual</label>
+                    <textarea id="editHowToUse" name="howToUse" rows="3" required></textarea>
                 </div>
                 <div class="form-group">
                     <label for="editStatus">Status</label>

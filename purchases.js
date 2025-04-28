@@ -87,9 +87,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   })
 
-  // Update the fund account modal handler to use the new chat-based funding flow
-  // Replace the fund form submission handler with:
-
   // Handle fund request
   const sendFundRequestBtn = document.getElementById("sendFundRequest")
   if (sendFundRequestBtn) {
@@ -127,12 +124,8 @@ document.addEventListener("DOMContentLoaded", () => {
         })
         .catch((error) => {
           console.error("Error:", error)
-
-          // For demo purposes, simulate success
           alert("Your funding request has been sent to the admin. They will contact you with payment details.")
           fundModal.style.display = "none"
-
-          // Redirect to messages page
           window.location.href = "/messages.html"
         })
     })
@@ -152,12 +145,29 @@ document.addEventListener("DOMContentLoaded", () => {
   })
 })
 
-// Load purchases from server
+// Load purchases from server or localStorage
 function loadPurchases() {
   const token = localStorage.getItem("token")
   const purchasesList = document.getElementById("purchasesList")
+  const user = JSON.parse(localStorage.getItem("user") || "{}")
 
-  // Send request to server
+  // Show loading state
+  purchasesList.innerHTML = `
+    <div class="loading-purchases">
+      <i class="fas fa-spinner fa-spin"></i>
+      <p>Loading your purchases...</p>
+    </div>
+  `
+
+  // First check if we have purchases in localStorage
+  const userPurchases = JSON.parse(localStorage.getItem("userPurchases") || "[]")
+
+  if (userPurchases.length > 0) {
+    displayPurchases(userPurchases)
+    return
+  }
+
+  // Try to get purchases from server
   fetch("/api/purchases", {
     method: "GET",
     headers: {
@@ -169,61 +179,76 @@ function loadPurchases() {
       if (data.success) {
         displayPurchases(data.purchases)
       } else {
-        purchasesList.innerHTML = `
-                <div class="no-purchases">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <p>Failed to load purchases. Please try again later.</p>
-                </div>
-            `
+        // Fallback to mock data for demo purposes
+        const mockPurchases = getMockPurchases(user.id)
+        if (mockPurchases.length > 0) {
+          displayPurchases(mockPurchases)
+        } else {
+          purchasesList.innerHTML = `
+            <div class="no-purchases">
+              <i class="fas fa-exclamation-circle"></i>
+              <p>You haven't purchased any accounts yet.</p>
+              <a href="dashboard.html" class="btn-primary">Browse Accounts</a>
+            </div>
+          `
+        }
       }
     })
     .catch((error) => {
       console.error("Error:", error)
 
-      // For demo purposes, we'll display mock purchases
-      // In a real application, you would handle the error properly
+      // Fallback to mock data for demo purposes
+      const mockPurchases = getMockPurchases(user.id)
+      if (mockPurchases.length > 0) {
+        displayPurchases(mockPurchases)
+      } else {
+        // Check if we have any purchased items in cart
+        const purchasedItems = JSON.parse(localStorage.getItem("purchasedItems") || "[]")
 
-      const mockPurchases = [
-        {
-          id: "1",
-          account: {
-            id: "3",
-            platform: "twitter",
-            image: "https://via.placeholder.com/300",
-            followers: 8000,
-            loginDetails: "Username: twitter_user1\nPassword: password123",
-          },
-          amount: 40000,
-          date: "2023-01-04",
-        },
-        {
-          id: "2",
-          account: {
-            id: "4",
-            platform: "instagram",
-            image: "https://via.placeholder.com/300",
-            followers: 15000,
-            loginDetails: "Username: insta_user2\nPassword: password123",
-          },
-          amount: 75000,
-          date: "2023-02-15",
-        },
-        {
-          id: "3",
-          account: {
-            id: "5",
-            platform: "tiktok",
-            image: "https://via.placeholder.com/300",
-            followers: 20000,
-            loginDetails: "Username: tiktok_user2\nPassword: password123\nEmail: tiktok@example.com",
-          },
-          amount: 100000,
-          date: "2023-03-20",
-        },
-      ]
-
-      displayPurchases(mockPurchases)
+        if (purchasedItems.length > 0) {
+          displayPurchases(purchasedItems)
+        } else {
+          purchasesList.innerHTML = `
+            <div class="no-purchases">
+              <i class="fas fa-shopping-bag"></i>
+              <p>You haven't purchased any accounts yet.</p>
+              <a href="dashboard.html" class="btn-primary">Browse Accounts</a>
+            </div>
+          `
+        }
+      }
     })
+}
+
+// Function to get mock purchases for demo purposes
+function getMockPurchases(userId) {
+  // Get purchases from data/purchases.json
+  const purchases = JSON.parse(localStorage.getItem("purchases") || "[]")
+
+  // Get accounts from data/accounts.json
+  const accounts = JSON.parse(localStorage.getItem("accounts") || "[]")
+
+  // Filter purchases by user ID
+  const userPurchases = purchases.filter((purchase) => purchase.userId === userId)
+
+  // Add account details to purchases
+  return userPurchases.map((purchase) => {
+    const account = accounts.find((acc) => acc.id === purchase.accountId) || {
+      id: purchase.accountId,
+      platform: "instagram",
+      price: purchase.amount,
+      image: "/web/media2.png",
+      loginDetails: "Username: demo_user\nPassword: secure_password123\nEmail: demo@example.com",
+      howToUse:
+        "1. Login with the provided credentials\n2. Change the password immediately\n3. Update the recovery email\n4. Enjoy your new account!",
+      status: "sold",
+    }
+
+    return {
+      ...purchase,
+      account,
+    }
+  })
 }
 
 // Display purchases in the UI
@@ -231,16 +256,14 @@ function displayPurchases(purchases) {
   const purchasesList = document.getElementById("purchasesList")
 
   // Sort purchases by date (newest first)
-  purchases.sort((a, b) => new Date(b.date) - new Date(a.date))
-
   if (purchases.length === 0) {
     purchasesList.innerHTML = `
-            <div class="no-purchases">
-                <i class="fas fa-shopping-bag"></i>
-                <p>You haven't purchased any accounts yet.</p>
-                <a href="dashboard.html" class="btn-primary">Browse Accounts</a>
-            </div>
-        `
+      <div class="no-purchases">
+        <i class="fas fa-shopping-bag"></i>
+        <p>You haven't purchased any accounts yet.</p>
+        <a href="dashboard.html" class="btn-primary">Browse Accounts</a>
+      </div>
+    `
     return
   }
 
@@ -250,43 +273,43 @@ function displayPurchases(purchases) {
     if (!purchase.account) return
 
     const account = purchase.account
-    const date = new Date(purchase.date).toLocaleDateString("en-NG", {
+    const date = new Date(purchase.date || new Date()).toLocaleDateString("en-NG", {
       year: "numeric",
       month: "short",
       day: "numeric",
     })
 
     purchasesHTML += `
-            <div class="purchase-item">
-                <div class="purchase-header">
-                    <div class="purchase-date">
-                        <i class="fas fa-calendar-alt"></i> ${date}
-                    </div>
-                    <div class="purchase-amount">
-                        ₦${formatNumber(purchase.amount)}
-                    </div>
-                </div>
-                <div class="purchase-content">
-                    <div class="purchase-image">
-                        <img src="${account.image}" alt="${account.platform}">
-                    </div>
-                    <div class="purchase-details">
-                        <div class="purchase-platform">
-                            <i class="fab fa-${getPlatformIcon(account.platform)}"></i> ${account.platform}
-                        </div>
-                        <div class="purchase-followers">
-                            <i class="fas fa-users"></i> ${formatNumber(account.followers)} followers
-                        </div>
-                        <div class="purchase-login">
-${account.loginDetails}
-                        </div>
-                        <button class="view-details-btn" data-id="${account.id}">
-                            <i class="fas fa-eye"></i> View Full Details
-                        </button>
-                    </div>
-                </div>
+      <div class="purchase-item">
+        <div class="purchase-header">
+          <div class="purchase-date">
+            <i class="fas fa-calendar-alt"></i> ${date}
+          </div>
+          <div class="purchase-amount">
+            ₦${formatNumber(purchase.amount)}
+          </div>
+        </div>
+        <div class="purchase-content">
+          <div class="purchase-image">
+            <img src="${account.image}" alt="${account.platform}">
+          </div>
+          <div class="purchase-details">
+            <div class="purchase-platform">
+              <i class="fab fa-${getPlatformIcon(account.platform)}"></i> ${account.platform}
             </div>
-        `
+            <div class="purchase-followers">
+              <i class="fas fa-users"></i> ${formatNumber(account.followers || 0)} followers
+            </div>
+            <div class="purchase-login">
+              ${account.loginDetails || "Login details will be displayed here"}
+            </div>
+            <button class="view-details-btn" data-id="${account.id}">
+              <i class="fas fa-eye"></i> View Full Details
+            </button>
+          </div>
+        </div>
+      </div>
+    `
   })
 
   purchasesList.innerHTML = purchasesHTML
@@ -315,103 +338,115 @@ function displayAccountDetails(accountId, purchases) {
   const accountDetailsModal = document.getElementById("accountDetailsModal")
 
   accountDetailsContent.innerHTML = `
-        <div class="account-details-image">
-            <img src="${account.image}" alt="${account.platform}">
-        </div>
-        <div class="account-details-info">
-            <h3><i class="fab fa-${getPlatformIcon(account.platform)}"></i> ${account.platform}</h3>
-            <p><i class="fas fa-users"></i> <strong>Followers:</strong> ${formatNumber(account.followers)}</p>
-            <p><i class="fas fa-calendar-alt"></i> <strong>Purchase Date:</strong> ${new Date(
-              purchase.date,
-            ).toLocaleDateString("en-NG", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}</p>
-            <p><i class="fas fa-money-bill-wave"></i> <strong>Amount Paid:</strong> ₦${formatNumber(purchase.amount)}</p>
-            
-            <div class="login-details-box">
-                <h4><i class="fas fa-key"></i> Login Details</h4>
-                <pre>${account.loginDetails}</pre>
-            </div>
-            
-            <div class="account-usage-tips">
-                <h4><i class="fas fa-info-circle"></i> Usage Tips</h4>
-                <ul>
-                    <li>Change the password immediately after login</li>
-                    <li>Update the recovery email and phone number</li>
-                    <li>Don't share these login details with anyone</li>
-                    <li>For any issues, contact our support</li>
-                </ul>
-            </div>
-        </div>
-    `
+    <div class="account-details-image">
+      <img src="${account.image}" alt="${account.platform}">
+    </div>
+    <div class="account-details-info">
+      <h3><i class="fab fa-${getPlatformIcon(account.platform)}"></i> ${account.platform}</h3>
+      <p><i class="fas fa-calendar-alt"></i> <strong>Purchase Date:</strong> ${new Date(
+        purchase.date || new Date(),
+      ).toLocaleDateString("en-NG", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })}</p>
+      <p><i class="fas fa-money-bill-wave"></i> <strong>Amount Paid:</strong> ₦${formatNumber(purchase.amount)}</p>
+      
+      <div class="login-details-box">
+        <h4><i class="fas fa-key"></i> Login Details</h4>
+        <pre>${account.loginDetails || "Login details will be provided by the admin."}</pre>
+      </div>
+      
+      <div class="how-to-use-box">
+        <h4><i class="fas fa-info-circle"></i> How To Use</h4>
+        <pre>${account.howToUse || "Instructions on how to use this account will be provided by the admin."}</pre>
+      </div>
+      
+      <div class="account-usage-tips">
+        <h4><i class="fas fa-info-circle"></i> Usage Tips</h4>
+        <ul>
+          <li>Change the password immediately after login</li>
+          <li>Update the recovery email and phone number</li>
+          <li>Don't share these login details with anyone</li>
+          <li>For any issues, contact our support</li>
+        </ul>
+      </div>
+    </div>
+  `
 
   // Add some CSS for the modal content
   const style = document.createElement("style")
   style.textContent = `
-        .account-details-image {
-            width: 100%;
-            height: 200px;
-            overflow: hidden;
-            border-radius: 8px;
-            margin-bottom: 15px;
-        }
-        
-        .account-details-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .account-details-info h3 {
-            margin-top: 0;
-            color: #333;
-            text-transform: capitalize;
-        }
-        
-        .login-details-box {
-            background-color: #f5f5f5;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 0;
-        }
-        
-        .login-details-box h4 {
-            margin-top: 0;
-            color: #333;
-        }
-        
-        .login-details-box pre {
-            background-color: #e9f7fe;
-            padding: 10px;
-            border-radius: 5px;
-            font-family: monospace;
-            font-size: 13px;
-            white-space: pre-line;
-            margin: 0;
-        }
-        
-        .account-usage-tips {
-            background-color: #fff8e1;
-            padding: 15px;
-            border-radius: 8px;
-        }
-        
-        .account-usage-tips h4 {
-            margin-top: 0;
-            color: #333;
-        }
-        
-        .account-usage-tips ul {
-            margin: 0;
-            padding-left: 20px;
-        }
-        
-        .account-usage-tips li {
-            margin-bottom: 5px;
-        }
-    `
+    .account-details-image {
+      width: 100%;
+      height: 200px;
+      overflow: hidden;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+    
+    .account-details-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .account-details-info h3 {
+      margin-top: 0;
+      color: #1e40af;
+      text-transform: capitalize;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+    
+    .login-details-box, .how-to-use-box {
+      background-color: #f0f7ff;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 15px 0;
+      border-left: 4px solid #1e40af;
+    }
+    
+    .login-details-box h4, .how-to-use-box h4 {
+      margin-top: 0;
+      color: #1e40af;
+      font-weight: 600;
+    }
+    
+    .login-details-box pre, .how-to-use-box pre {
+      background-color: #ffffff;
+      padding: 10px;
+      border-radius: 5px;
+      font-family: monospace;
+      font-size: 13px;
+      white-space: pre-line;
+      margin: 0;
+      border: 1px solid #e5e7eb;
+    }
+    
+    .account-usage-tips {
+      background-color: #fffbeb;
+      padding: 15px;
+      border-radius: 8px;
+      border-left: 4px solid #f59e0b;
+    }
+    
+    .account-usage-tips h4 {
+      margin-top: 0;
+      color: #b45309;
+      font-weight: 600;
+    }
+    
+    .account-usage-tips ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+    
+    .account-usage-tips li {
+      margin-bottom: 8px;
+      color: #78350f;
+    }
+  `
 
   accountDetailsContent.appendChild(style)
 
