@@ -423,6 +423,8 @@ app.post("/api/transactions/purchase", authenticateToken, (req, res) => {
     return res.status(400).json({ success: false, message: "Missing required fields" })
   }
 
+  console.log("Processing purchase:", { accountId, userId })
+
   // Verify user id matches authenticated user or is admin
   if (req.user.id !== userId && req.user.role !== "admin") {
     return res.status(403).json({ success: false, message: "Forbidden" })
@@ -491,6 +493,7 @@ app.post("/api/transactions/purchase", authenticateToken, (req, res) => {
     writeDataFile(TRANSACTIONS_FILE, transactions) &&
     writeDataFile(PURCHASES_FILE, purchases)
   ) {
+    console.log("Purchase successful, saved to purchases.json")
     return res.json({
       success: true,
       message: "Purchase successful",

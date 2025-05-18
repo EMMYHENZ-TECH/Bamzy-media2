@@ -607,6 +607,16 @@ document.addEventListener("DOMContentLoaded", () => {
       purchases.push(purchase)
       localStorage.setItem("purchases", JSON.stringify(purchases))
 
+      // Also save to userPurchases for the purchases page
+      const userPurchases = JSON.parse(localStorage.getItem("userPurchases") || "[]")
+      userPurchases.push({
+        id: purchase.id,
+        account: account,
+        amount: account.price,
+        date: purchase.date,
+      })
+      localStorage.setItem("userPurchases", JSON.stringify(userPurchases))
+
       // Save accounts to localStorage for demo purposes
       const accounts = JSON.parse(localStorage.getItem("accounts") || "[]")
       if (!accounts.some((a) => a.id === account.id)) {
@@ -617,6 +627,22 @@ document.addEventListener("DOMContentLoaded", () => {
         accounts[index] = { ...account, status: "sold" }
       }
       localStorage.setItem("accounts", JSON.stringify(accounts))
+
+      // Send purchase to server API
+      fetch("/api/transactions/purchase", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          accountId: account.id,
+          userId: user.id,
+        }),
+      }).catch((error) => {
+        console.error("Error saving purchase to server:", error)
+        // Continue with local purchase flow even if server fails
+      })
 
       // Update user balance
       user.balance -= account.price

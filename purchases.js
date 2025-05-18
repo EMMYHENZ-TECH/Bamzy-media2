@@ -202,11 +202,11 @@ function loadPurchases() {
       if (mockPurchases.length > 0) {
         displayPurchases(mockPurchases)
       } else {
-        // Check if we have any purchased items in cart
-        const purchasedItems = JSON.parse(localStorage.getItem("purchasedItems") || "[]")
+        // Check if we have any user purchases in localStorage
+        const userPurchases = JSON.parse(localStorage.getItem("userPurchases") || "[]")
 
-        if (purchasedItems.length > 0) {
-          displayPurchases(purchasedItems)
+        if (userPurchases.length > 0) {
+          displayPurchases(userPurchases)
         } else {
           purchasesList.innerHTML = `
             <div class="no-purchases">
